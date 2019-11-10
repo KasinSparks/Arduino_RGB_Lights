@@ -4,7 +4,7 @@
 
 #define FADESPEED 5
 
-#define COMMAND_BUFFER_LENGTH 12
+#define COMMAND_BUFFER_LENGTH 16
 
 enum Color{
   RED=0,
@@ -53,7 +53,7 @@ void fadeColor(lights &l, const int &toVal){
 }
 
 // Fades mulitple lights to idv. values at a rate defined by FADESPEED
-void fadeColors(lights *l, const unsigned int &numOfLights, const int *toVals){
+void fadeColors(lights *l, const unsigned int &numOfLights, const int *toVals, const unsigned int fadeSpeed = FADESPEED){
   int deltas[numOfLights];
 
   // Calculate deltas
@@ -83,29 +83,30 @@ void fadeColors(lights *l, const unsigned int &numOfLights, const int *toVals){
     }
 
     // Set the delay
-    delay(FADESPEED);
+    delay(fadeSpeed);
+    ///Serial.println("FADING");
   }
 }
 
 // Checks to see if the command is vaild
 bool checkCommand(const char *command, const unsigned int &COMMAND_LENGTH, int **values){
-  if (COMMAND_LENGTH != 12) {
+  if (COMMAND_LENGTH != COMMAND_BUFFER_LENGTH) {
     return false;
   }
 
-  // Check for format of xxx,xxx,xxx
+  // Check for format of xxx,xxx,xxx,xxx;
   int counterA = 0;
   int counterB = 0;
 
   for (int i = 0; i < COMMAND_LENGTH; ++i){
     // Comma positions
-    if(i == 3 || i == 7){
+    if(i == 3 || i == 7 || i == 11){
       // Comma was not found in position
       if(command[i] != ',') return false;
 
       counterA++;
       counterB = 0;
-    } else if(i == 12){
+    } else if(i == COMMAND_BUFFER_LENGTH - 1){
       // Semicolon position
       if(command[i] != ';') return false;
     } else {
@@ -152,31 +153,36 @@ int convertTobase10Int(const int *vals, const int &numOfDigits){
 
 // Processed the command to change the light values
 void processCommand(char *commandBuffer){
-  int *values[3];
+  const unsigned int NUM_OF_BYTES = 4;
+  int *values[NUM_OF_BYTES];
 
-  for(int i = 0; i < 3; ++i){
+  for(int i = 0; i < NUM_OF_BYTES; ++i){
     values[i] = new int[3];
   }
 
   // Check for vaild command
   if(!checkCommand(commandBuffer, COMMAND_BUFFER_LENGTH, values)){
     // Not a vaild command
+    // clean up and return
+    for(int i = 0; i < NUM_OF_BYTES; ++i){
+      delete values[i];
+    }
     return;
   }
 
   // Command must of been vaild... process command
 
-  // Convert from 3 digit array to base ten number
-  int numVals[3];
-  for(int i = 0; i < 3; ++i){
+  // Convert from 4 digit array to base ten number
+  int numVals[NUM_OF_BYTES];
+  for(int i = 0; i < NUM_OF_BYTES; ++i){
     numVals[i] = convertTobase10Int(values[i], 3);
   }
 
   // Change the lights
-  fadeColors(myLights, 3, numVals);
+  fadeColors(myLights, 3, numVals, numVals[NUM_OF_BYTES - 1]);
 
   // Clean up
-  for(int i = 0; i < 3; ++i){
+  for(int i = 0; i < NUM_OF_BYTES; ++i){
     delete values[i];
   }
 }
@@ -194,17 +200,15 @@ void readInCommand(){
     int numOfBytesInSerial = Serial.available();
 
     if(numOfBytesInSerial > 0){
-      Serial.println("READING..");
+      ///Serial.println("READING..");
       // Read the number of bytes available
       for(int i = 0; i < numOfBytesInSerial; ++i){
         charIn = Serial.read();
 
+        // Reset the buffer
         if(charIn == 'r'){
           Serial.flush();
           return;
-        } else if(charIn == 'o'){
-          // On / Off
-          
         }
         
         commandBuffer[numIn++] = charIn;
@@ -216,6 +220,9 @@ void readInCommand(){
   }
 
   processCommand(commandBuffer);
+
+  // Tell the controller we are done with given command
+  Serial.println("DONE");
 }
 
 
