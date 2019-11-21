@@ -5,7 +5,7 @@ import serial
 import time
 
 
-isLoopingEnabled = True 
+isLoopingEnabled = False 
 
 SERIALPORT = "/dev/ttyUSB0"
 BAUDRATE = 9600 
