@@ -3,101 +3,90 @@
 #from serial import Serial
 import serial
 import time
+import sys
 
+from SerialHelper import SerialHelper
 
 isLoopingEnabled = False 
 
-SERIALPORT = "/dev/ttyUSB0"
-BAUDRATE = 9600 
 
-ser = serial.Serial(SERIALPORT, BAUDRATE)
+def main():
 
-ser.bytesize = serial.EIGHTBITS #number of bits per bytes
+    portFile = open("../config/port", "r")
+    currentPort = str(portFile.readline())
+    portFile.close()
 
-ser.parity = serial.PARITY_NONE #set parity check: no parity
+    # Serial connection
+    sc = SerialHelper()
 
-ser.stopbits = serial.STOPBITS_ONE #number of stop bits
+    sc.connect(port=currentPort)
 
-ser.timeout = None          #block read
+    if sc.isOpen():
 
-#ser.timeout = 0             #non-block read
+        time.sleep(2)
 
-#ser.timeout = 3              #timeout block read
+        try:
+            sc.flushInputAndOutput()
 
-ser.xonxoff = False     #disable software flow control
+            oldData = [] 
 
-ser.rtscts = False     #disable hardware (RTS/CTS) flow control
+            while True:
+                portFile = open("../config/port", "r")
+                tempPort = str(portFile.readline())
+                if currentPort != tempPort:
+                    currentPort = tempPort
+                portFile.close()
 
-ser.dsrdtr = False       #disable hardware (DSR/DTR) flow control
-
-ser.writeTimeout = 0     #timeout for write
-
-print('Starting Up Serial Monitor')
-
-try:
-    ser.open()
-
-except Exception as e:
-    print "error open serial port: " + str(e)
-    ser.close()
-    ser.open()
-
-if ser.isOpen():
-
-    time.sleep(5)
-
-    try:
-        ser.flushInput() #flush input buffer, discarding all its contents
-        ser.flushOutput()#flush output buffer, aborting current output
-        
-        oldData = [] 
+                f = open("../config/command", 'r')
+                data = f.readlines()
 
 
-        while True:
-            f = open("../config/command", 'r')
-            data = f.readlines()
+                if not(len(oldData) == len(data)):
+                    for i in range(len(data)):
+                        oldData.append("")
 
-
-            if len(oldData) == 0:
                 for i in range(len(data)):
-                    oldData.append("")
+                    if(data[i] != oldData[i] or isLoopingEnabled):
+                        # Check for delay
+                        if("DELAY" in data[i].upper()):
+                            splitText = data[i].split()
+                            try:
+                                time.sleep((int)(splitText[1]))
+                                continue
+                            except:
+                                print("Invalid command \'" + data[i] + "\' on line: " + i)
+                                f.close()
+                                sc.close()
+                                exit()
 
-            for i in range(len(data)):
-                if(data[i] != oldData[i] or isLoopingEnabled):
-                    # Check for delay
-                    if("DELAY" in data[i].upper()):
-                        splitText = data[i].split()
-                        try:
-                            time.sleep((int)(splitText[1]))
-                            continue
-                        except:
-                            print("Invalid command \'" + data[i] + "\' on line: " + i)
-                            f.close()
-                            ser.close()
-                            exit()
+                        print("Data in buffer: " + str(data[i]))
+                        sc.write(str.encode(data[i]))
+                        #oldData = data.copy()
+                        print("Writing data: " + data[i])
 
-                    ser.write(data[i] + "\r\n")
-                    #oldData = data.copy()
-                    print("Writing data: " + data[i])
+                        line = ""
+                        while(True):
+                            line = sc.readline()
+                            
+                            print("I have read: " + line.decode("utf-8"))
+                            if("DONE" in line.decode("utf-8")):
+                                break
+                    
+                oldData = list(data)
 
-                    line = ""
-                    while(True):
-                        line = ser.readline()
-                        print("I have read: " + str(line))
-                        if("DONE" in line):
-                            break
+                f.close()
+
+                if(not isLoopingEnabled):
+                    time.sleep(2)
                 
-            oldData = list(data)
+            sc.close()
 
-            f.close()
+        except Exception as e:
+            print("error communicating...: " + str(e))
+    else:
+        print("cannot open serial port ")
 
-            if(not isLoopingEnabled):
-                time.sleep(5)
-            
-        ser.close()
 
-    except Exception, e:
-        print "error communicating...: " + str(e)
-
-else:
-    print "cannot open serial port "
+if __name__ == "__main__":
+    print('Starting Up Serial Monitor')
+    main()

@@ -18,7 +18,8 @@ class SerialHelper():
         self.ser.dsrdtr = False       #disable hardware (DSR/DTR) flow control
         self.ser.writeTimeout = 0     #timeout for write
 
-
+    # Connect to a serial port.  1 <= n < 6 will inversly 
+    # determine the number of times serial connection will try to connect to port
     def connect(self, port, n=1):
         self.ser.port = port
         # Try to open then connection
@@ -45,25 +46,40 @@ class SerialHelper():
         # Was able to connect
         return True
 
+    # Close the connection
+    def close(self):
+        self.ser.close()
+
+    # Read from the serial port 
     def read(self):
         return self.ser.read()
-    
-    def readlines(self):
-        return self.ser.readlines()
 
+    # Read the lines from the serial port
+    # Returns a list of the lines 
+    def readline(self):
+        return self.ser.readline()
+
+    # Write the the serial port buffer
     def write(self, s):
         self.ser.write(s)
 
+    # Remove all data in the buffer for the serial port
     def flushInputAndOutput(self):
         self.flushInput()
         self.flushOutput()
 
+    # Only remove the data in the buffer for the input
     def flushInput(self):
         self.ser.flushInput()
 
+    # Only remove the data in the output buffer
     def flushOutput(self):
         self.ser.flushOutput()
 
+    # Test if the serial connect is open
+    def isOpen(self):
+        return self.ser.isOpen()
 
+# Returns a list of the available serial ports
 def getSerialPorts():
     return serial.tools.list_ports.comports()

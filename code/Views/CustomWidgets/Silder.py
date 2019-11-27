@@ -17,7 +17,6 @@ class Silder(Frame):
         self._maxValue = maxValue
         self._minValue = minValue
 
-
         self.bar = Canvas(self, height=self.barHeight, width=self.barWidth, background=self.__generateColor(self._maxValue))
         self.dial = self.bar.create_rectangle(self.dialPosition,self.dialPosition,self.barWidth,5, fill='grey') 
 
@@ -49,23 +48,36 @@ class Silder(Frame):
 
         return
 
+    # Generate a color that is an element of {R,G,B}.
+    # Example: value=255, color = Color.RED -> return_value = #ff0000
     def __generateColor(self, value):
-        # Pad the string as needed
-        print("Color hex: " + hex(value))
         color = "#"
-        for i in range(0,self._color.value):
+        # Pad the string as needed
+        for i in range(0, self._color.value * 2):
             color += "0"
-
-        # Convert base ten value to two hex values
-        temp = hex(value).split('x')[1]
-        # Get rid of the '0x'
-        if len(temp) < 2:
-            temp = "0" + temp 
-        color += temp 
-
-       # Pad the string as needed 
+        
+        color += self.getHex(value)    
+        # Pad the string as needed 
         for i in range(len(color), 7):
             color += '0'
         
         return color
-        
+    
+    # Get the value of the slider (0-255)
+    def getValue(self):
+        # Invert the value (e.g. silder at bottom means dialPostion == 255, but we want it to equal 0)
+        return (self.dialPosition - self._maxValue) * -1 
+
+    # Get hex value
+    def getHex(self, base10num):
+        # Pad the string as needed
+        #for i in range(0, self._color.value * 2):
+        #    color += "0"
+
+        # Convert base ten value to two hex values
+        hexVal = hex(base10num).split('x')[1]
+        # Get rid of the '0x'
+        if(len(hexVal) < 2):
+            for i in range(len(hexVal), 2):
+                hexVal = "0" + hexVal 
+        return hexVal 
