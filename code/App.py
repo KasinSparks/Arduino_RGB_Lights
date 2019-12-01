@@ -10,6 +10,8 @@ from ColorEnum import Color
 
 from functools import partial
 
+from Views.CommandPanel import CommandPanel
+
 import os, signal
 
 menuBackgroundColor = "#262e30"
@@ -34,6 +36,10 @@ class App(Frame):
 
         self.grid()
         self.createWidgets()
+        # Restart the RGB controller
+        f = open("../config/processctl", "w")
+        f.write("start")
+        f.close()
     
     def createWidgets(self):
         self.quitButton= Button(self, text="Quit", command=self.quit)
@@ -65,6 +71,9 @@ class App(Frame):
         self.delayValLabel.grid(column=0, row=0)
         self.delayVal = Entry(self.delayAreaFrame)
         self.delayVal.grid(column=0, row=1)
+
+        self.cPanel = CommandPanel()
+        self.cPanel.grid(column=4,row = 0)
         
 
         self.my_menu = Menu(self,
@@ -118,7 +127,15 @@ class App(Frame):
         if self.ser.connect(port):
             text = 'Connected on ' + port
             color = 'green'
-            open("../config/port", "w").write(port)
+            f = open("../config/port", "w")
+            f.write(port)
+            f.close()
+
+            # Restart the RGB controller
+            f = open("../config/processctl", "w")
+            f.write("restart")
+            f.close()
+
 
         uiElement['foreground'] = color 
         uiElement['text'] = text 
@@ -204,6 +221,7 @@ app.master.config(menu=app.my_menu, background=mainBackgroundColor)
 
 #subprocess.call(["./controller.py", "/dev/ttyUSB0"])
 
+# Start up the app and the process manager
 pid = os.fork()
 
 if pid:

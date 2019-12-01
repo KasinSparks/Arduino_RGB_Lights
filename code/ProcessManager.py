@@ -6,7 +6,6 @@ from ProcessManagerAgent import ProcessManagerAgent
 import time, sys, signal, traceback
 
 def main():
-    oldCommand = ""
     # Create an agent
     agent = ProcessManagerAgent()
     try:
@@ -18,11 +17,13 @@ def main():
             command = file.readline()
             file.close()
 
-            if command == oldCommand:
+            if command == "" or command is None:
                 time.sleep(1)
                 continue
             else:
-                oldCommand = command
+                file = open("../config/processctl", "w")
+                file.write("")
+                file.close()
 
             commandVal = agent.vailidateCommand(command)
             if commandVal.value < 0:
@@ -33,7 +34,7 @@ def main():
             # Handle the request
             agent.handler(commandVal)
 
-            time.sleep(2) 
+            time.sleep(1) 
     finally:
         # Close any spwaned processes then this process
         print("Closing processes")

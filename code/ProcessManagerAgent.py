@@ -7,7 +7,6 @@ class ProcessManagerAgent():
         self.childPid = -1
 
 
-
     def handler(self, commandVal):
         if commandVal == ProcessCommandEnum.START:
             # Start the process
