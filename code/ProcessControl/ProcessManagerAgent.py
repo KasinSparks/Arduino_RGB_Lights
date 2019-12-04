@@ -1,10 +1,15 @@
+## Author: Kasin Sparks
+## Date: 04 DEC 2019
+## Objective: An agent to handle a specific process in the START, STOP, and RESTART commands.
+
 import os, signal
-from ProcessCommandEnum import ProcessCommandEnum
+from ProcessControl.ProcessCommandEnum import ProcessCommandEnum
 
 class ProcessManagerAgent():
 
-    def __init__(self):
+    def __init__(self, file):
         self.childPid = -1
+        self.file = file
 
 
     def handler(self, commandVal):
@@ -34,8 +39,8 @@ class ProcessManagerAgent():
             os.waitpid(pid, os.WNOHANG)
         else:
             # child
-            print("Starting controller.py")
-            os.execlp("python3", "python3", "controller.py")
+            print("Starting " + str(self.file))
+            os.execlp("python3", "python3", self.file)
             print("Code should not of reached here! ERROR!!!")
 
 
@@ -68,4 +73,4 @@ class ProcessManagerAgent():
             if str.upper(command).strip('\n') == str.upper(c.name):
                 return c
         
-        return -1
+        return ProcessCommandEnum.ERROR 

@@ -1,11 +1,12 @@
+## Author: Kasin Sparks
+## Date: 04 DEC 2019
+## Objective: Create a class to interface with the arduino via serial communication.
+
 import serial
 import serial.tools.list_ports
 import time
 
 class SerialHelper():
-
-
-
     def __init__(self):
         self.bradrate = 9600
         self.ser = serial.Serial(None, self.bradrate)

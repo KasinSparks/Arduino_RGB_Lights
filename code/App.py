@@ -11,6 +11,9 @@ from ColorEnum import Color
 from functools import partial
 
 from Views.CommandPanel import CommandPanel
+from Views.ListItem import ListItem
+
+from ProcessControl import ProcessManager, ProcessCommandEnum
 
 import os, signal
 
@@ -37,9 +40,11 @@ class App(Frame):
         self.grid()
         self.createWidgets()
         # Restart the RGB controller
-        f = open("../config/processctl", "w")
-        f.write("start")
-        f.close()
+        #f = open("../config/processctl", "w")
+        #f.write("controller.py,start")
+        #f.close()
+        ProcessManager.sendCommand("controller.py", ProcessCommandEnum.ProcessCommandEnum.START)
+        
     
     def createWidgets(self):
         self.quitButton= Button(self, text="Quit", command=self.quit)
@@ -74,6 +79,8 @@ class App(Frame):
 
         self.cPanel = CommandPanel()
         self.cPanel.grid(column=4,row = 0)
+
+        self.cPanel.insert(END, ListItem(self.cPanel, "Insert Test 1"))
         
 
         self.my_menu = Menu(self,
@@ -133,7 +140,7 @@ class App(Frame):
 
             # Restart the RGB controller
             f = open("../config/processctl", "w")
-            f.write("restart")
+            f.write("controller.py,restart")
             f.close()
 
 
@@ -230,7 +237,7 @@ if pid:
     os.kill(pid, signal.SIGTERM)
 else:
     # child
-    exec(open("./ProcessManager.py").read())
+    exec(open("./ProcessControl/ProcessManager.py").read())
 
 #os.system("controller.py")
 
