@@ -1,6 +1,6 @@
 ## Author: Kasin Sparks
 ## Date: 04 DEC 2019
-## Objective: Create a class to interface with the arduino via serial communication.
+## Objective: Create a class to interface with serial communications.
 
 import serial
 import serial.tools.list_ports

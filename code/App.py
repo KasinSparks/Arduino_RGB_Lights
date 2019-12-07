@@ -43,7 +43,7 @@ class App(Frame):
         #f = open("../config/processctl", "w")
         #f.write("controller.py,start")
         #f.close()
-        ProcessManager.sendCommand("controller.py", ProcessCommandEnum.ProcessCommandEnum.START)
+        ##ProcessManager.sendCommand("controller.py", ProcessCommandEnum.ProcessCommandEnum.START)
         
     
     def createWidgets(self):
@@ -80,7 +80,7 @@ class App(Frame):
         self.cPanel = CommandPanel()
         self.cPanel.grid(column=4,row = 0)
 
-        self.cPanel.insert(END, ListItem(self.cPanel, "Insert Test 1"))
+        #self.cPanel.insert(END, ListItem(self.cPanel, "Insert Test 1"))
         
 
         self.my_menu = Menu(self,
@@ -139,10 +139,10 @@ class App(Frame):
             f.close()
 
             # Restart the RGB controller
-            f = open("../config/processctl", "w")
-            f.write("controller.py,restart")
-            f.close()
-
+            ##f = open("../config/processctl", "w")
+            ##f.write("controller.py,restart")
+            ##f.close()
+            ProcessManager.sendCommand("controller.py", ProcessCommandEnum.ProcessCommandEnum.RESTART)
 
         uiElement['foreground'] = color 
         uiElement['text'] = text 
