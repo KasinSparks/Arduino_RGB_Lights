@@ -9,6 +9,8 @@ from tkinter import *
 
 from Views.ListItem import ListItem
 
+import os
+
 class CommandPanel(Frame):
 
     def __init__(self, master=None, numOfViewableItems = 10):
@@ -36,6 +38,10 @@ class CommandPanel(Frame):
         #for i in self._items:
         #    i.grid()
 
+        # Save button
+        self._saveButton = Button(self, command=self.save)
+        self._saveButton.grid(column=0, row=(self._numOfViewableItems + 1))
+
         #self.insert(END, ListItem(self, "This is a test0", self.removeItem))
         #self.insert(END, ListItem(self, "This is a test1"))
         #self.insert(END, ListItem(self, "This is a test2"))
@@ -54,9 +60,9 @@ class CommandPanel(Frame):
 
             ## Add the items back
             for i in range(showingRange[0], showingRange[1]):
-                self._items[i].grid()
+                self._items[i].grid(column=0, row=(i - showingRange[0]))
                 self._items[i].indexOffset = i
-        
+
         return
 
 
@@ -99,26 +105,29 @@ class CommandPanel(Frame):
             print("ERROR: index value was not an integer. Item was not added.")
             return 
 
+        # Update list after change
         self.updateList(index)
 
 
     def removeItem(self, index=0):
-        #print(self.size())
-        #self.delete(0,END)
-        #self.update_idletasks()
-        # Remove the item from the view
-        #self._items[index].grid_remove()
         # Remove the item from the list
         self._items.pop(index=index)
+        # Update list after change
         self.updateList(index)
-        #print(self.size())
-        ## TODO: remove an item
-        ## TODO: File IO
 
     def save(self):
-        # TODO:
-        pass
+        # Save to the command file
+        try:
+            f = open('../config/command', 'w')
+        except FileNotFoundError:
+            print("File was not found. Could not save Commnads.")
+            return
 
-    def _fileIO(self):
-        ## TODO: File IO
-        pass
+        try:
+            print("Saving commands...")
+            for i in self._items:
+                f.write(str(i.text) + '\n')
+
+            print("Done.")
+        finally:
+            f.close()
