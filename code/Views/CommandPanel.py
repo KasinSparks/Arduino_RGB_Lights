@@ -13,8 +13,9 @@ class CommandPanel(Frame):
 
     def __init__(self, master=None, numOfViewableItems = 10):
         Frame.__init__(self, master)
-
-        self._items = []
+        
+        # Staticly type _items to a list of ListItems
+        self._items: List[ListItem] = []
 
         self._currentPosition = 0
         self._numOfViewableItems = numOfViewableItems
@@ -31,8 +32,9 @@ class CommandPanel(Frame):
         self._items.append(ListItem(self, "TEST1"))
         #self._items.insert(0, ListItem(self, "TEst1"))
 
-        for i in self._items:
-            i.grid()
+        self.updateList()
+        #for i in self._items:
+        #    i.grid()
 
         #self.insert(END, ListItem(self, "This is a test0", self.removeItem))
         #self.insert(END, ListItem(self, "This is a test1"))
@@ -47,11 +49,13 @@ class CommandPanel(Frame):
 
             ## Remove the items
             for i in self._items:
+                i.indexOffset = -1
                 i.grid_remove()
-            
+
             ## Add the items back
-            for i in range(showingRange.index(0), showingRange.index(1)):
+            for i in range(showingRange[0], showingRange[1]):
                 self._items[i].grid()
+                self._items[i].indexOffset = i
         
         return
 
@@ -60,7 +64,7 @@ class CommandPanel(Frame):
     def _isInShowingRange(self, index):
         # See if the viewable items in the list need to be updated
         _range = self._getShowingRange()
-        if index in range(_range.index(0), _range.index(1)):
+        if index in range(_range[0], _range[1]):
             return True
 
         return False
@@ -103,10 +107,10 @@ class CommandPanel(Frame):
         #self.delete(0,END)
         #self.update_idletasks()
         # Remove the item from the view
-        self._items[index].grid_remove()
+        #self._items[index].grid_remove()
         # Remove the item from the list
         self._items.pop(index=index)
-        print("here")
+        self.updateList(index)
         #print(self.size())
         ## TODO: remove an item
         ## TODO: File IO
