@@ -53,6 +53,18 @@ class CommandPanel(Frame):
             # Update list
             showingRange = self._getShowingRange()
 
+            ## Remove the item in the list, then add the updated version back
+            for i in range(showingRange[0], showingRange[1]):
+                # Remove it
+                self._items.indexOffset = -1
+                self._items.grid_remove()
+                
+
+
+                # Add it back
+                self._items[i].grid(column=1, row(i - showingRange[0]))
+
+
             ## Remove the items
             for i in self._items:
                 i.indexOffset = -1
