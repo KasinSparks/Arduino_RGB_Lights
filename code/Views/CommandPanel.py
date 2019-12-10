@@ -30,11 +30,14 @@ class CommandPanel(Frame):
         ## TODO
 
         #self._items.insert(0, ListItem(self, "TEst0", self.removeItem))
-        self._items.append(ListItem(self, "TEST0"))
-        self._items.append(ListItem(self, "TEST1"))
+        #self._items.append(ListItem(self, "TEST0"))
+        #self._items.append(ListItem(self, "TEST1"))
         #self._items.insert(0, ListItem(self, "TEst1"))
 
-        self.updateList()
+        self.addItem("TEST0")
+        self.addItem("TEST1")
+
+        #self.updateList()
         #for i in self._items:
         #    i.grid()
 
@@ -59,8 +62,6 @@ class CommandPanel(Frame):
                 self._items.indexOffset = -1
                 self._items.grid_remove()
                 
-
-
                 # Add it back
                 self._items[i].grid(column=1, row(i - showingRange[0]))
 
@@ -121,7 +122,11 @@ class CommandPanel(Frame):
         self.updateList(index)
 
 
-    def removeItem(self, index=0):
+    def removeItem(self, index=-1, listItem=None):
+        # Check for ListItem object and get the index from it
+        if listItem is not None:
+            index=listItem.indexOffset
+        
         # Remove the item from the list
         self._items.pop(index=index)
         # Update list after change
