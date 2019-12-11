@@ -184,7 +184,8 @@ class App(Frame):
     def addValues(self):
         tempString = self.paddNum(self.sliderRed.getValue()) + ',' + self.paddNum(self.sliderGreen.getValue()) + ',' + self.paddNum(self.sliderBlue.getValue()) + ',' + self.paddNum(self.parseDelayValue()) + ';'
         self.tempText['text'] = tempString
-        self.writeToFile(file="../config/command", text=tempString + '\n')
+        #self.writeToFile(file="../config/command", text=tempString + '\n')
+        self.cPanel.addItem(tempString)
 
     def paddNum(self, num=0):
         if num > 255:

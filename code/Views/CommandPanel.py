@@ -9,6 +9,8 @@ from tkinter import *
 
 from Views.ListItem import ListItem
 
+from functools import partial
+
 import os
 
 class CommandPanel(Frame):
@@ -16,11 +18,17 @@ class CommandPanel(Frame):
     def __init__(self, master=None, numOfViewableItems = 10):
         Frame.__init__(self, master)
         
+        # Command file location
+        self._commandFile = os.path.join('..', 'config', 'command')
+
         # Staticly type _items to a list of ListItems
         self._items: List[ListItem] = []
 
         self._currentPosition = 0
         self._numOfViewableItems = numOfViewableItems
+        
+        # Trash buttons
+        self._trashButtons = []
 
         self.grid()
         self.createWidgets()
@@ -28,26 +36,22 @@ class CommandPanel(Frame):
     # Insert the existing commands into the panel
     def createWidgets(self):
         ## TODO
+        
+        # Create trash buttons
+        for i in range(self._numOfViewableItems):
+            functionCall = partial(self.removeItem, i)
+            self._trashButtons.append(Button(self, bitmap="error", command=functionCall))
 
-        #self._items.insert(0, ListItem(self, "TEst0", self.removeItem))
-        #self._items.append(ListItem(self, "TEST0"))
-        #self._items.append(ListItem(self, "TEST1"))
-        #self._items.insert(0, ListItem(self, "TEst1"))
+        #self.addItem("TEST0")
+        #self.addItem("TEST1")
 
-        self.addItem("TEST0")
-        self.addItem("TEST1")
-
-        #self.updateList()
-        #for i in self._items:
-        #    i.grid()
+        # Load data from file
+        self.load()
 
         # Save button
-        self._saveButton = Button(self, command=self.save)
-        self._saveButton.grid(column=0, row=(self._numOfViewableItems + 1))
+        self._saveButton = Button(self, text="SAVE", command=self.save)
+        self._saveButton.grid(column=0, row=(self._numOfViewableItems))
 
-        #self.insert(END, ListItem(self, "This is a test0", self.removeItem))
-        #self.insert(END, ListItem(self, "This is a test1"))
-        #self.insert(END, ListItem(self, "This is a test2"))
 
     # Update the list. If the index is in range of current showing, update. 
     ## If no index is specified, update current showing.
@@ -56,25 +60,26 @@ class CommandPanel(Frame):
             # Update list
             showingRange = self._getShowingRange()
 
-            ## Remove the item in the list, then add the updated version back
-            for i in range(showingRange[0], showingRange[1]):
-                # Remove it
-                self._items.indexOffset = -1
-                self._items.grid_remove()
-                
-                # Add it back
-                self._items[i].grid(column=1, row(i - showingRange[0]))
-
-
             ## Remove the items
-            for i in self._items:
-                i.indexOffset = -1
-                i.grid_remove()
+            for i in range(len(self._items)):
+                self._items[i].indexOffset = -1
+                self._items[i].grid_remove()
+
+
+            # Remove the trash buttons
+            for i in range(self._numOfViewableItems):
+                self._trashButtons[i].grid_remove()
+
 
             ## Add the items back
             for i in range(showingRange[0], showingRange[1]):
-                self._items[i].grid(column=0, row=(i - showingRange[0]))
+                self._items[i].grid(column=1, row=(i - showingRange[0]))
                 self._items[i].indexOffset = i
+
+                # Add the trash buttons
+                functionCall = partial(self.removeItem, i)
+                self._trashButtons[i - showingRange[0]]['command'] = functionCall
+                self._trashButtons[i - showingRange[0]].grid(column=0, row=(i - showingRange[0]))
 
         return
 
@@ -119,23 +124,34 @@ class CommandPanel(Frame):
             return 
 
         # Update list after change
-        self.updateList(index)
+        self.updateList()
 
 
-    def removeItem(self, index=-1, listItem=None):
-        # Check for ListItem object and get the index from it
-        if listItem is not None:
-            index=listItem.indexOffset
-        
+    def removeItem(self, index):
         # Remove the item from the list
-        self._items.pop(index=index)
-        # Update list after change
-        self.updateList(index)
+        if len(self._items) > 0 and index > -1 and index < len(self._items):
+            print("Index: " + str(index))
 
+            # Remove the trash button
+            if len(self._items) < self._numOfViewableItems:
+                ## Make sure this is before the item get poped out of the list,
+                ## unless the index will be one too negative
+                self._trashButtons[len(self._items) - 1].grid_remove()
+            
+            # Remove the listItem
+            self._items.pop(index).grid_remove()
+            
+            # Update list after change
+            self.updateList()
+        else:
+            print("Invaild index... No item was removed.")
+
+
+    # Save what is in the _items list to the file
     def save(self):
         # Save to the command file
         try:
-            f = open('../config/command', 'w')
+            f = open(self._commandFile, 'w')
         except FileNotFoundError:
             print("File was not found. Could not save Commnads.")
             return
@@ -143,8 +159,29 @@ class CommandPanel(Frame):
         try:
             print("Saving commands...")
             for i in self._items:
-                f.write(str(i.text) + '\n')
+                f.write(str(i.text))
+                if i != (len(self._items) - 1):
+                    f.write('\n')
 
+            print("Done.")
+        finally:
+            f.close()
+
+
+    # Load all the command in the command file to the _items list
+    def load(self):
+        # Load the commands from the file
+        try:
+            f = open(self._commandFile, 'r')
+        except:
+            print("File not found. Commands were not loaded.")
+            return
+
+        try:
+            print("Loading commands...")
+            for i in f:
+                self.addItem(i)
+            
             print("Done.")
         finally:
             f.close()

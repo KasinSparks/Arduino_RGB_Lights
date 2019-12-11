@@ -22,9 +22,9 @@ class ListItem(Frame):
         self._label.grid(column=1, row=0)
 
         # Trash button
-        if self._callback is None:
-            self._deleteButton = Button(self, bitmap="error")
-        else:
-            self._deleteButton = Button(self, bitmap="error", command=self._callback)
+        #if self._callback is None:
+        #    self._deleteButton = Button(self, bitmap="error")
+        #else:
+        #    self._deleteButton = Button(self, bitmap="error", command=self._callback(listItem = self))
         
-        self._deleteButton.grid(column=0, row = 0)
+        #self._deleteButton.grid(column=0, row = 0)
