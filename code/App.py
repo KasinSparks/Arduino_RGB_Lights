@@ -1,7 +1,5 @@
 from tkinter import *
 from ModeEnum import Mode
-#from SerialHelper import SerialHelper
-#from SerialHelper import SerialHelper
 import SerialHelper
 import Views.StaticView
 

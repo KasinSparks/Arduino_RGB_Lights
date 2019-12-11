@@ -26,9 +26,10 @@ class CommandPanel(Frame):
 
         self._currentPosition = 0
         self._numOfViewableItems = numOfViewableItems
-        
+
         # Trash buttons
         self._trashButtons = []
+
 
         self.grid()
         self.createWidgets()
@@ -52,6 +53,11 @@ class CommandPanel(Frame):
         self._saveButton = Button(self, text="SAVE", command=self.save)
         self._saveButton.grid(column=0, row=(self._numOfViewableItems))
 
+        # Scrollbar
+        self._scrollbar = Scrollbar(self, width=100, command=self._scroll)
+        self._scrollbar.grid(column=2, row=0, rowspan=self._numOfViewableItems)
+
+
 
     # Update the list. If the index is in range of current showing, update. 
     ## If no index is specified, update current showing.
@@ -62,7 +68,6 @@ class CommandPanel(Frame):
 
             ## Remove the items
             for i in range(len(self._items)):
-                self._items[i].indexOffset = -1
                 self._items[i].grid_remove()
 
 
@@ -74,7 +79,6 @@ class CommandPanel(Frame):
             ## Add the items back
             for i in range(showingRange[0], showingRange[1]):
                 self._items[i].grid(column=1, row=(i - showingRange[0]))
-                self._items[i].indexOffset = i
 
                 # Add the trash buttons
                 functionCall = partial(self.removeItem, i)
@@ -145,6 +149,11 @@ class CommandPanel(Frame):
             self.updateList()
         else:
             print("Invaild index... No item was removed.")
+
+    
+    def _scroll(self, test):
+        print("scrolled..." + str(test))
+        return
 
 
     # Save what is in the _items list to the file
