@@ -62,6 +62,14 @@ class App(Frame):
         self.addButton = Button(self, text="Add", command=self.addValues)
         self.addButton.grid()
 
+        # TODO: change the value to reflect the item selected index
+        self.addButton = Button(self, text="Add After Selected", command=partial(self.addValues, -1))
+        self.addButton.grid()
+
+        # TODO: Add at a random position
+        self.addButton = Button(self, text="Add At A Random Position", command=partial(self.addValues, -1))
+        self.addButton.grid()
+
         # test
         self.sliderRed.grid(column=0, row=0)
         self.sliderGreen.grid(column=1, row=0)
@@ -179,11 +187,11 @@ class App(Frame):
         return value        
 
 
-    def addValues(self):
+    def addValues(self, index=-1):
         tempString = self.paddNum(self.sliderRed.getValue()) + ',' + self.paddNum(self.sliderGreen.getValue()) + ',' + self.paddNum(self.sliderBlue.getValue()) + ',' + self.paddNum(self.parseDelayValue()) + ';'
         self.tempText['text'] = tempString
         #self.writeToFile(file="../config/command", text=tempString + '\n')
-        self.cPanel.addItem(tempString)
+        self.cPanel.addItem(tempString, index)
 
     def paddNum(self, num=0):
         if num > 255:

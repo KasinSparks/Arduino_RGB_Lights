@@ -53,11 +53,33 @@ class CommandPanel(Frame):
         self._saveButton = Button(self, text="SAVE", command=self.save)
         self._saveButton.grid(column=0, row=(self._numOfViewableItems))
 
-        # Scrollbar
-        self._scrollbar = Scrollbar(self, width=100, command=self._scroll)
-        self._scrollbar.grid(column=2, row=0, rowspan=self._numOfViewableItems)
+        # Page up/down buttons
+        self._pageButtons = {"Page Down": Button(self, text="Page Down", command=partial(self._pageButtonsCommand, 1)), 
+                        "Page Up": Button(self, text="Page Up", command=partial(self._pageButtonsCommand, -1))}
+        self._pageButtons["Page Up"].grid(column=2, row=0)
+        self._pageButtons["Page Down"].grid(column=2, row=self._numOfViewableItems-1)
+
+        # Single inc. buttons
+        self._incButtons = {"Down": Button(self, text="Scroll Down", command=partial(self._scrollButtonsCommand, 1)),
+                            "Up": Button(self, text="Scroll Up", command=partial(self._scrollButtonsCommand, -1))}
+        self._incButtons["Up"].grid(column=2, row=1)
+        self._incButtons["Down"].grid(column=2, row=self._numOfViewableItems-2)
 
 
+    # Move the list a page down
+    def _pageButtonsCommand(self, direction=1):
+        # Check if full paging or partial
+        if (self._currentPosition + (direction * self._numOfViewableItems)) > len(self._items):
+            # Partial paging
+            self._currentPosition = len(self._items) - self._numOfViewableItems
+        else:
+            # Full paging
+            self._currentPosition += self._numOfViewableItems
+            self.updateList()
+
+    # Move the list up/down an item
+    def _scrollButtonsCommand(self, direction=1):
+        pass
 
     # Update the list. If the index is in range of current showing, update. 
     ## If no index is specified, update current showing.
@@ -169,7 +191,8 @@ class CommandPanel(Frame):
             print("Saving commands...")
             for i in self._items:
                 f.write(str(i.text))
-                if i != (len(self._items) - 1):
+                # If it is the last item in the list, don't write the newline after command
+                if i != (self._items[len(self._items) - 1]):
                     f.write('\n')
 
             print("Done.")
@@ -189,7 +212,8 @@ class CommandPanel(Frame):
         try:
             print("Loading commands...")
             for i in f:
-                self.addItem(i)
+                # Add the command line without the new line
+                self.addItem(i.split('\n')[0])
             
             print("Done.")
         finally:
