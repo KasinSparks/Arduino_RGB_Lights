@@ -11,6 +11,8 @@ from Views.ListItem import ListItem
 
 from functools import partial
 
+import random, math
+
 import os
 
 class CommandPanel(Frame):
@@ -30,6 +32,7 @@ class CommandPanel(Frame):
         # Trash buttons
         self._trashButtons = []
 
+        self._selectedItem = None
 
         self.grid()
         self.createWidgets()
@@ -43,8 +46,6 @@ class CommandPanel(Frame):
             functionCall = partial(self.removeItem, i)
             self._trashButtons.append(Button(self, bitmap="error", command=functionCall))
 
-        #self.addItem("TEST0")
-        #self.addItem("TEST1")
 
         # Load data from file
         self.load()
@@ -68,18 +69,46 @@ class CommandPanel(Frame):
 
     # Move the list a page down
     def _pageButtonsCommand(self, direction=1):
-        # Check if full paging or partial
-        if (self._currentPosition + (direction * self._numOfViewableItems)) > len(self._items):
-            # Partial paging
-            self._currentPosition = len(self._items) - self._numOfViewableItems
-        else:
-            # Full paging
-            self._currentPosition += self._numOfViewableItems
-            self.updateList()
+        # Page the list in the direction given
+        gotoPos = self._currentPosition + (self._numOfViewableItems * direction) 
+
+        scrollResult = self._scroll(gotoPos)
+
+        if scrollResult > 0:        
+            # Over shot the target
+            gotoPos = len(self._items) - self._numOfViewableItems
+        elif scrollResult < 0:
+            # Under shot the target
+            gotoPos = 0
+        
+        self._currentPosition = gotoPos
+        self.updateList()
+
 
     # Move the list up/down an item
     def _scrollButtonsCommand(self, direction=1):
-        pass
+        # Move the list by one in direction given
+        gotoPos = self._currentPosition + direction
+
+        # Already at end of list or already at beginning of list
+        if self._scroll(gotoPos) != 0:
+            return 
+
+        self._currentPosition = gotoPos
+        self.updateList()
+
+    # Returns -1 for under, 0 for within range, 1 for over shot target
+    def _scroll(self, gotoPos):
+        # Check bounds
+        if gotoPos > len(self._items) - self._numOfViewableItems:
+            # Over shot the target
+            return 1
+        elif gotoPos < 0:
+            # Under shot the target
+            return -1
+        
+        return 0
+
 
     # Update the list. If the index is in range of current showing, update. 
     ## If no index is specified, update current showing.
@@ -173,10 +202,6 @@ class CommandPanel(Frame):
             print("Invaild index... No item was removed.")
 
     
-    def _scroll(self, test):
-        print("scrolled..." + str(test))
-        return
-
 
     # Save what is in the _items list to the file
     def save(self):
@@ -218,3 +243,20 @@ class CommandPanel(Frame):
             print("Done.")
         finally:
             f.close()
+
+
+    # Return the index of a ListItem
+    def getListItemIndex(self, listItem):
+        if listItem is None:
+            print("Could not find index... No ListItem object provided.")
+            return
+
+        # Find item in the list O(n)
+        for i in range(len(self._items)):
+            if listItem is self._items[i]:
+                return i
+
+    
+    # Return a random index
+    def getRandomIndex(self):
+        return random.randint(0, len(self._items))

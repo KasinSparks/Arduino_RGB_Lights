@@ -43,6 +43,7 @@ def main():
                 # Read the commands in the file
                 f = open("../config/command", 'r')
                 data = f.readlines()
+                f.close()
 
                 # If the data in the file has changed clear out the old data
                 ## with empty strings. The list length must be same for old data
@@ -62,7 +63,7 @@ def main():
                                 continue
                             except:
                                 print("Invalid command \'" + data[i] + "\' on line: " + i)
-                                f.close()
+                                #f.close()
                                 sc.close()
                                 exit()
 
@@ -81,7 +82,6 @@ def main():
                     
                 oldData = list(data)
 
-                f.close()
 
                 if(not isLoopingEnabled):
                     time.sleep(2)

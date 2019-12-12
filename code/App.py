@@ -45,6 +45,9 @@ class App(Frame):
         
     
     def createWidgets(self):
+        self.cPanel = CommandPanel()
+
+
         self.quitButton= Button(self, text="Quit", command=self.quit)
         self.quitButton.grid()
 
@@ -63,11 +66,15 @@ class App(Frame):
         self.addButton.grid()
 
         # TODO: change the value to reflect the item selected index
-        self.addButton = Button(self, text="Add After Selected", command=partial(self.addValues, -1))
+        #self.addButton = Button(self, text="Add After Selected", command=partial(self.addValues, self.cPanel.getListItemIndex(self.cPanel._selectedItem)))
+        # Hacky way of doing this... listItem could be done better
+        self.addButton = Button(self,
+                                text="Add After Selected", 
+                                command=partial(self.addValues, listItem='Not None'))
         self.addButton.grid()
 
         # TODO: Add at a random position
-        self.addButton = Button(self, text="Add At A Random Position", command=partial(self.addValues, -1))
+        self.addButton = Button(self, text="Add At A Random Position", command=partial(self.addValues, random=True))
         self.addButton.grid()
 
         # test
@@ -83,7 +90,6 @@ class App(Frame):
         self.delayVal = Entry(self.delayAreaFrame)
         self.delayVal.grid(column=0, row=1)
 
-        self.cPanel = CommandPanel()
         self.cPanel.grid(column=4,row = 0)
 
         #self.cPanel.insert(END, ListItem(self.cPanel, "Insert Test 1"))
@@ -187,7 +193,21 @@ class App(Frame):
         return value        
 
 
-    def addValues(self, index=-1):
+    def addValues(self, listItem=None, index=-1, random=False):
+        if index is None:
+            print("Index was None... Values not added.")
+            return
+        elif listItem is not None:
+            if self.cPanel._selectedItem is None:
+                print("No selected object... Value was not added.")
+                return
+
+            index = self.cPanel.getListItemIndex(self.cPanel._selectedItem) + 1
+        elif random:
+            index = self.cPanel.getRandomIndex()
+
+
+
         tempString = self.paddNum(self.sliderRed.getValue()) + ',' + self.paddNum(self.sliderGreen.getValue()) + ',' + self.paddNum(self.sliderBlue.getValue()) + ',' + self.paddNum(self.parseDelayValue()) + ';'
         self.tempText['text'] = tempString
         #self.writeToFile(file="../config/command", text=tempString + '\n')
