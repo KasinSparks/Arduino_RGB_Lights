@@ -5,6 +5,7 @@
 import serial
 import time
 import sys
+import os
 
 from SerialHelper import SerialHelper
 
@@ -13,8 +14,11 @@ isLoopingEnabled = False
 
 def main():
 
+    configFileName = os.path.join(os.getcwd(), 'config', 'port') 
+    commandFileName = os.path.join(os.getcwd(), 'config', 'command') 
+
     # Get the port specified in the file
-    portFile = open("../config/port", "r")
+    portFile = open(configFileName, "r")
     currentPort = str(portFile.readline())
     portFile.close()
 
@@ -34,14 +38,14 @@ def main():
             # Connect to port specified in file and read data in file
             while True:
                 # Check to see if port has changed
-                portFile = open("../config/port", "r")
+                portFile = open(configFileName, "r")
                 tempPort = str(portFile.readline())
                 if currentPort != tempPort:
                     currentPort = tempPort
                 portFile.close()
 
                 # Read the commands in the file
-                f = open("../config/command", 'r')
+                f = open(commandFileName, 'r')
                 data = f.readlines()
                 f.close()
 

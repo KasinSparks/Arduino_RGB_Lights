@@ -21,7 +21,7 @@ class CommandPanel(Frame):
         Frame.__init__(self, master)
         
         # Command file location
-        self._commandFile = os.path.join('..', 'config', 'command')
+        self._commandFile = os.path.join('config', 'command')
 
         # Staticly type _items to a list of ListItems
         self._items: List[ListItem] = []

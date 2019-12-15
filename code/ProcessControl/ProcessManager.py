@@ -7,7 +7,7 @@ from ProcessControl.ProcessCommandEnum import ProcessCommandEnum
 from ProcessControl.ProcessManagerAgent import ProcessManagerAgent
 import time, sys, signal, os, traceback
 
-mainDirectory = os.path.join(os.getcwd(), "..")
+mainDirectory = os.path.join(os.getcwd())
 processctlFile = os.path.join(mainDirectory, "config", "processctl") 
 
 def main():

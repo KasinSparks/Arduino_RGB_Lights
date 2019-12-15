@@ -85,10 +85,17 @@ class App(Frame):
         self.delayAreaFrame = Frame(self)
         self.delayAreaFrame.grid(column=3, row=0)
 
-        self.delayValLabel = Label(self.delayAreaFrame, text="Fade Value:")
-        self.delayValLabel.grid(column=0, row=0)
+        self.fadeValLabel = Label(self.delayAreaFrame, text="Fade Value:")
+        self.fadeValLabel.grid(column=0, row=0)
+        self.fadeVal = Entry(self.delayAreaFrame)
+        self.fadeVal.grid(column=0, row=1)
+        
+        self.delayValLabel = Label(self.delayAreaFrame, text="Delay Value:")
+        self.delayValLabel.grid(column=0, row=3)
         self.delayVal = Entry(self.delayAreaFrame)
-        self.delayVal.grid(column=0, row=1)
+        self.delayVal.grid(column=0, row=4)
+        self.addDelayButton = Button(self.delayAreaFrame, text="Add Delay Value", command=self.addDelayValue)
+        self.addDelayButton.grid(column=1, row=3, rowspan=2)
 
         self.cPanel.grid(column=4,row = 0)
 
@@ -146,7 +153,7 @@ class App(Frame):
         if self.ser.connect(port):
             text = 'Connected on ' + port
             color = 'green'
-            f = open("../config/port", "w")
+            f = open("config/port", "w")
             f.write(port)
             f.close()
 
@@ -178,11 +185,11 @@ class App(Frame):
         print("Mode changed from: "+ (str) (self.mode) + " to: " + (str) (mode))
         self.mode = mode
 
-    def parseDelayValue(self):
-        delayValStr = self.delayVal.get()
+    def parseFadeValue(self):
+        fadeValStr = self.fadeVal.get()
 
         try:
-            value = int(delayValStr)
+            value = int(fadeValStr)
             if value < 1 or value > 255:
                 print("Delay value out of byte range")
                 return 1
@@ -208,10 +215,29 @@ class App(Frame):
 
 
 
-        tempString = self.paddNum(self.sliderRed.getValue()) + ',' + self.paddNum(self.sliderGreen.getValue()) + ',' + self.paddNum(self.sliderBlue.getValue()) + ',' + self.paddNum(self.parseDelayValue()) + ';'
+        tempString = self.paddNum(self.sliderRed.getValue()) + ',' + self.paddNum(self.sliderGreen.getValue()) + ',' + self.paddNum(self.sliderBlue.getValue()) + ',' + self.paddNum(self.parseFadeValue()) + ';'
         self.tempText['text'] = tempString
         #self.writeToFile(file="../config/command", text=tempString + '\n')
         self.cPanel.addItem(tempString, index)
+
+    def addDelayValue(self):
+        # Check range of value
+        delayValStr = self.delayVal.get()
+
+        try:
+            value = int(delayValStr)
+            if value < 1 or value > 255:
+                print("Delay value out of byte range")
+                return -1
+        except ValueError as err:
+            print(err)
+            return -1
+
+        delayValStr = "DELAY: " + delayValStr
+
+        self.cPanel.addItem(delayValStr)
+
+
 
     def paddNum(self, num=0):
         if num > 255:
@@ -264,7 +290,7 @@ if pid:
     os.kill(pid, signal.SIGTERM)
 else:
     # child
-    exec(open("./ProcessControl/ProcessManager.py").read())
+    exec(open("./code/ProcessControl/ProcessManager.py").read())
 
 #os.system("controller.py")
 
