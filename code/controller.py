@@ -16,6 +16,7 @@ def main():
 
     configFileName = os.path.join(os.getcwd(), 'config', 'port') 
     commandFileName = os.path.join(os.getcwd(), 'config', 'command') 
+    loopingCondition = os.path.join(os.getcwd(), 'config', 'loopingCondition') 
 
     # Get the port specified in the file
     portFile = open(configFileName, "r")
@@ -49,6 +50,14 @@ def main():
                 data = f.readlines()
                 f.close()
 
+                # Read the looping condition in file
+                f = open(loopingCondition, 'r')
+                if f.readline().upper() == "LOOPING: TRUE;":
+                    isLoopingEnabled = True
+                else:
+                    isLoopingEnabled = False
+                f.close()
+
                 # If the data in the file has changed clear out the old data
                 ## with empty strings. The list length must be same for old data
                 ## and data for comparision later
@@ -58,6 +67,7 @@ def main():
 
                 # Iterate through the commands and execute the commands
                 for i in range(len(data)):
+                    # Check for looping condition
                     if(data[i] != oldData[i] or isLoopingEnabled):
                         # Check for delay
                         if("DELAY" in data[i].upper()):

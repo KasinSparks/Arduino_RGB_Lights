@@ -185,6 +185,17 @@ class App(Frame):
         print("Mode changed from: "+ (str) (self.mode) + " to: " + (str) (mode))
         self.mode = mode
 
+        loopingCondition = os.path.join(os.getcwd(), 'config', 'loopingCondition')
+        f = open(loopingCondition, 'w')
+
+        message = "LOOPING: "
+        if self.mode == Mode.Dynamic:
+            message += "TRUE;"            
+        elif self.mode == Mode.Static:
+            message += "FALSE;"
+        f.write(message)
+        f.close()
+
     def parseFadeValue(self):
         fadeValStr = self.fadeVal.get()
 
@@ -291,6 +302,7 @@ if pid:
 else:
     # child
     exec(open("./code/ProcessControl/ProcessManager.py").read())
+    #os.execlp("python3", "python3", "./ProcessControl/ProcessManager.py")
 
 #os.system("controller.py")
 
